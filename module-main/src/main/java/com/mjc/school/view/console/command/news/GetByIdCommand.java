@@ -1,22 +1,24 @@
-package com.mjc.school.view.console.operation;
+package com.mjc.school.view.console.command.news;
 
-import com.mjc.school.controller.NewsController;
 import com.mjc.school.repository.exception.NewsNotFoundException;
+import com.mjc.school.view.console.command.Command;
+import com.mjc.school.view.console.command.CommandDict;
+import com.mjc.school.view.console.command.CommandDispatcher;
 import com.mjc.school.view.console.error.ErrorsDict;
+import com.mjc.school.view.exceptin.ApplicationException;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
 
 import static com.mjc.school.view.console.utils.InputUtil.inputLong;
 
-@Component
-public class GetByIdOperation implements Operation {
-
-    private final NewsController controller;
+@Component("NEWS_GET_BY_ID")
+public class GetByIdCommand implements Command {
+    private final CommandDispatcher commandDispatcher;
     private final Scanner reader;
 
-    public GetByIdOperation(NewsController controller, Scanner reader) {
-        this.controller = controller;
+    public GetByIdCommand(CommandDispatcher commandDispatcher, Scanner reader) {
+        this.commandDispatcher = commandDispatcher;
         this.reader = reader;
     }
 
@@ -30,14 +32,17 @@ public class GetByIdOperation implements Operation {
         try {
             userChoice = inputLong(STEP_1, reader, ErrorsDict.NEWS_ID_SHOULD_BE_NUMBER);
 
-            System.out.println(controller.readById(userChoice));
+            commandDispatcher.execute(hoAmI().name(), userChoice);
+
         } catch (NewsNotFoundException e) {
             ErrorsDict.NEWS_WITH_ID_DOES_NOT_EXIST.printLn(userChoice);
+        } catch (Exception e) {
+            throw new ApplicationException(e);
         }
     }
 
     @Override
-    public OperationName hoAmI() {
-        return OperationName.GET_BY_ID;
+    public CommandDict hoAmI() {
+        return CommandDict.NEWS_GET_BY_ID;
     }
 }

@@ -1,10 +1,13 @@
-package com.mjc.school.view.console.operation;
+package com.mjc.school.view.console.command.news;
 
-import com.mjc.school.controller.NewsController;
 import com.mjc.school.repository.exception.AuthorNotFoundException;
-import com.mjc.school.service.dto.NewsDtoResponse;
+import com.mjc.school.service.dto.NewsDto;
 import com.mjc.school.service.exception.NewsDtoValidationException;
+import com.mjc.school.view.console.command.Command;
+import com.mjc.school.view.console.command.CommandDict;
+import com.mjc.school.view.console.command.CommandDispatcher;
 import com.mjc.school.view.console.error.ErrorsDict;
+import com.mjc.school.view.exceptin.ApplicationException;
 import org.springframework.stereotype.Component;
 
 import java.util.Scanner;
@@ -12,14 +15,14 @@ import java.util.Scanner;
 import static com.mjc.school.view.console.utils.InputUtil.inputLong;
 import static com.mjc.school.view.console.utils.InputUtil.inputString;
 
-@Component
-public class CreateOperation implements Operation {
+@Component("NEWS_CREATE")
+public class CreateCommand implements Command {
 
-    private final NewsController controller;
+    private final CommandDispatcher commandDispatcher;
     private final Scanner reader;
 
-    public CreateOperation(NewsController controller, Scanner reader) {
-        this.controller = controller;
+    public CreateCommand(CommandDispatcher commandDispatcher, Scanner reader) {
+        this.commandDispatcher = commandDispatcher;
         this.reader = reader;
     }
 
@@ -35,24 +38,26 @@ public class CreateOperation implements Operation {
     @Override
     public void doIt() {
 
-        NewsDtoResponse newsDto = new NewsDtoResponse();
+        NewsDto newsDto = new NewsDto();
         try {
             newsDto
                     .setTitle(inputString(STEP_1, reader))
                     .setContent(inputString(STEP_2, reader))
                     .setAuthorId(inputLong(STEP_3, reader, ErrorsDict.AUTHOR_ID_SHOULD_BE_NUMBER));
 
-            System.out.println(controller.create(newsDto));
+            commandDispatcher.execute(hoAmI().name(), newsDto);
 
         } catch (AuthorNotFoundException e) {
             ErrorsDict.AUTHOR_ID_DOES_NOT_EXIST.printLn(newsDto.getAuthorId());
         } catch (NewsDtoValidationException e) {
             ErrorsDict.NEWS_DTO_VALIDATION.printLn(e.getMessage(), e.getField(), e.getValue());
+        } catch (Exception e) {
+            throw new ApplicationException(e);
         }
     }
 
     @Override
-    public OperationName hoAmI() {
-        return OperationName.CREATE;
+    public CommandDict hoAmI() {
+        return CommandDict.NEWS_CREATE;
     }
 }
