@@ -13,6 +13,7 @@ public enum ErrorsDict {
     NEWS_ID_SHOULD_BE_NUMBER("000013", "News Id should be number."),
     AUTHOR_ID_SHOULD_BE_NUMBER("000013", "Author Id should be number."),
     NEWS_ID_MUST_BE_NULL_ON_CREATION("000014", "News id should be empty for new news."),
+    AUTHOR_DTO_VALIDATION("000015", "%s. Author %s is %s.."),
     ;
 
     private final String errorCode;

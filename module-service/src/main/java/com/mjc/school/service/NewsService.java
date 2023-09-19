@@ -5,7 +5,7 @@ import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.exception.AuthorNotFoundException;
 import com.mjc.school.repository.exception.NewsNotFoundException;
 import com.mjc.school.repository.model.NewsModel;
-import com.mjc.school.service.dto.NewsDtoResponse;
+import com.mjc.school.service.dto.NewsDto;
 import com.mjc.school.service.exception.NewsDtoValidationException;
 import com.mjc.school.service.exception.NewsIdMustBeNullException;
 import jakarta.validation.ConstraintViolation;
@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class NewsService implements BaseService<NewsDtoResponse, NewsModel, Long> {
+public class NewsService implements BaseService<NewsDto, NewsModel, Long> {
     private final AuthorRepository authorRepository;
     private final NewsRepository newsRepository;
     private final ModelMapper modelMapper = new ModelMapper();
@@ -47,7 +47,7 @@ public class NewsService implements BaseService<NewsDtoResponse, NewsModel, Long
     }
 
     @Override
-    public NewsModel create(NewsDtoResponse createRequest) {
+    public NewsModel create(NewsDto createRequest) {
 
         validate(createRequest);
         checkAuthorExist(createRequest);
@@ -59,7 +59,7 @@ public class NewsService implements BaseService<NewsDtoResponse, NewsModel, Long
     }
 
     @Override
-    public NewsModel update(NewsDtoResponse updateRequest) {
+    public NewsModel update(NewsDto updateRequest) {
 
         validate(updateRequest);
         checkAuthorExist(updateRequest);
@@ -78,9 +78,9 @@ public class NewsService implements BaseService<NewsDtoResponse, NewsModel, Long
         return newsRepository.deleteById(id);
     }
 
-    private void validate(NewsDtoResponse dto) {
-        Set<ConstraintViolation<NewsDtoResponse>> violations = validator.validate(dto);
-        Optional<ConstraintViolation<NewsDtoResponse>> any = violations.stream().findAny();
+    private void validate(NewsDto dto) {
+        Set<ConstraintViolation<NewsDto>> violations = validator.validate(dto);
+        Optional<ConstraintViolation<NewsDto>> any = violations.stream().findAny();
         if (any.isPresent()) {
             throw new NewsDtoValidationException(
                     any.get().getPropertyPath().toString(),
@@ -89,13 +89,13 @@ public class NewsService implements BaseService<NewsDtoResponse, NewsModel, Long
         }
     }
 
-    private void checkAuthorExist(NewsDtoResponse object) {
+    private void checkAuthorExist(NewsDto object) {
         if (object == null || authorRepository.readById(object.getAuthorId()).isEmpty()) {
             throw new AuthorNotFoundException();
         }
     }
 
-    private void dtoIdMustBeNull(NewsDtoResponse object) {
+    private void dtoIdMustBeNull(NewsDto object) {
         if (object == null || object.getId() != null) {
             throw new NewsIdMustBeNullException();
         }

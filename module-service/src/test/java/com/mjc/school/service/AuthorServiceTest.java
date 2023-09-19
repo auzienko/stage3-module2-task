@@ -4,22 +4,24 @@ import com.mjc.school.repository.AuthorRepository;
 import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.constant.PropertiesName;
 import com.mjc.school.repository.datasource.DataSource;
+import com.mjc.school.repository.exception.AuthorNotFoundException;
 import com.mjc.school.repository.exception.NewsNotFoundException;
 import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.NewsModel;
 import com.mjc.school.repository.utils.PropertiesReader;
-import com.mjc.school.service.dto.NewsDto;
+import com.mjc.school.service.dto.AuthorDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class NewsServiceTest {
+class AuthorServiceTest {
 
-    private NewsService underTest;
+    private AuthorService underTest;
 
     @BeforeEach
     void init() throws IOException {
@@ -34,58 +36,48 @@ class NewsServiceTest {
         AuthorRepository authorRepository = new AuthorRepository(authorModelDataSource);
         NewsRepository newsRepository = new NewsRepository(newsModelDataSource);
 
-        underTest = new NewsService(authorRepository, newsRepository);
+        underTest = new AuthorService(authorRepository, newsRepository);
     }
 
     @Test
     void findAll() {
-        int expectedSize = 20;
+        int expectedSize = 21;
 
-        List<NewsModel> all = underTest.readAll();
+        List<AuthorModel> all = underTest.readAll();
 
         assertEquals(expectedSize, all.size());
     }
 
     @Test
     void findById() {
-        NewsModel byId = underTest.readById(1L);
+        AuthorModel byId = underTest.readById(1L);
 
         assertEquals(1L, byId.getId());
     }
 
     @Test
     void create() {
-        long expectedId = 21L;
+        long expectedId = 22L;
 
-        NewsDto requestDto = new NewsDto();
-        requestDto.setTitle("test title");
-        requestDto.setContent("some content text");
-        requestDto.setAuthorId(1L);
+        AuthorDto requestDto = new AuthorDto();
+        requestDto.setName("my name");
 
-        NewsModel responseDto = underTest.create(requestDto);
-        assertEquals(requestDto.getTitle(), responseDto.getTitle());
-        assertEquals(requestDto.getContent(), responseDto.getContent());
-        assertEquals(requestDto.getAuthorId(), responseDto.getAuthorId());
+        AuthorModel responseDto = underTest.create(requestDto);
+        assertEquals(requestDto.getName(), responseDto.getName());
         assertEquals(expectedId, responseDto.getId());
-        assertNotNull(responseDto.getLastUpdateDate());
-        assertNotNull(responseDto.getCreateDate());
     }
 
     @Test
     void update() {
         long updateId = 1L;
 
-        NewsDto requestDto = new NewsDto();
-        requestDto.setTitle("test title");
-        requestDto.setContent("some content text");
-        requestDto.setAuthorId(1L);
+        AuthorDto requestDto = new AuthorDto();
+        requestDto.setName("hello name");
         requestDto.setId(updateId);
 
-        NewsModel responseDto = underTest.update(requestDto);
+        AuthorModel responseDto = underTest.update(requestDto);
 
-        assertEquals(requestDto.getTitle(), responseDto.getTitle());
-        assertEquals(requestDto.getContent(), responseDto.getContent());
-        assertEquals(requestDto.getAuthorId(), responseDto.getAuthorId());
+        assertEquals(requestDto.getName(), responseDto.getName());
         assertEquals(1L, responseDto.getId());
     }
 
@@ -93,11 +85,11 @@ class NewsServiceTest {
     void remove() {
         long entityId = 1L;
 
-        NewsModel beforeTest = underTest.readById(entityId);
+        AuthorModel beforeTest = underTest.readById(entityId);
 
         underTest.deleteById(entityId);
 
-        assertThrows(NewsNotFoundException.class,
+        assertThrows(AuthorNotFoundException.class,
                 () -> {
                     underTest.readById(entityId);
                 });

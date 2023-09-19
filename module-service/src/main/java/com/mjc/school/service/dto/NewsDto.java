@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Accessors(chain = true)
-public class NewsDtoResponse {
+public class NewsDto {
     private Long id;
 
     @NotEmpty

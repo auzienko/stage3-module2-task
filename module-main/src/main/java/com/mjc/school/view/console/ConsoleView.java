@@ -1,9 +1,9 @@
 package com.mjc.school.view.console;
 
 import com.mjc.school.view.View;
+import com.mjc.school.view.console.command.Command;
+import com.mjc.school.view.console.command.CommandDict;
 import com.mjc.school.view.console.error.ErrorsDict;
-import com.mjc.school.view.console.operation.Operation;
-import com.mjc.school.view.console.operation.OperationName;
 import com.mjc.school.view.console.utils.InputUtil;
 import org.springframework.stereotype.Component;
 
@@ -24,15 +24,15 @@ public class ConsoleView implements View {
     private final String menu;
 
     private final Scanner reader;
-    private Map<Long, Operation> operationMap;
+    private Map<Long, Command> operationMap;
 
-    public ConsoleView(Set<Operation> operationSet, Scanner reader) {
+    public ConsoleView(Set<Command> operationSet, Scanner reader) {
         this.reader = reader;
         makeOperationMap(operationSet);
         menu = makeMenu();
     }
 
-    private void makeOperationMap(Set<Operation> operationSet) {
+    private void makeOperationMap(Set<Command> operationSet) {
         operationMap = operationSet.stream()
                 .collect(Collectors.toMap(e -> e.hoAmI().getId(), Function.identity()));
     }
@@ -47,7 +47,7 @@ public class ConsoleView implements View {
 
     private String makeMenu() {
         StringBuilder sb = new StringBuilder(TITLE);
-        for (OperationName o : OperationName.values()) {
+        for (CommandDict o : CommandDict.values()) {
             sb.append(TEMPLATE.formatted(o.getId(), o.getDescription()));
         }
         sb.append(EXIT);
@@ -59,7 +59,7 @@ public class ConsoleView implements View {
             return;
         }
 
-        Operation operation = operationMap.get(userChoice);
+        Command operation = operationMap.get(userChoice);
 
         if (operation == null) {
             System.out.println(OPERATION_NOT_FOUND);
