@@ -4,13 +4,16 @@ import com.mjc.school.repository.AuthorRepository;
 import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.constant.PropertiesName;
 import com.mjc.school.repository.datasource.DataSource;
-import com.mjc.school.repository.exception.NewsNotFoundException;
 import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.NewsModel;
 import com.mjc.school.repository.utils.PropertiesReader;
-import com.mjc.school.service.dto.NewsDto;
+import com.mjc.school.service.dto.NewsServiceRequestDto;
+import com.mjc.school.service.dto.NewsServiceResponseDto;
+import com.mjc.school.service.exception.UnifiedServiceException;
+import com.mjc.school.service.mapper.NewsServiceRepositoryMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class NewsServiceTest {
 
     private NewsService underTest;
+    private final NewsServiceRepositoryMapper mapper = Mappers.getMapper(NewsServiceRepositoryMapper.class);
+
 
     @BeforeEach
     void init() throws IOException {
@@ -34,21 +39,21 @@ class NewsServiceTest {
         AuthorRepository authorRepository = new AuthorRepository(authorModelDataSource);
         NewsRepository newsRepository = new NewsRepository(newsModelDataSource);
 
-        underTest = new NewsService(authorRepository, newsRepository);
+        underTest = new NewsService(authorRepository, newsRepository, mapper);
     }
 
     @Test
     void findAll() {
         int expectedSize = 20;
 
-        List<NewsModel> all = underTest.readAll();
+        List<NewsServiceResponseDto> all = underTest.readAll();
 
         assertEquals(expectedSize, all.size());
     }
 
     @Test
     void findById() {
-        NewsModel byId = underTest.readById(1L);
+        NewsServiceResponseDto byId = underTest.readById(1L);
 
         assertEquals(1L, byId.getId());
     }
@@ -57,12 +62,12 @@ class NewsServiceTest {
     void create() {
         long expectedId = 21L;
 
-        NewsDto requestDto = new NewsDto();
+        NewsServiceRequestDto requestDto = new NewsServiceRequestDto();
         requestDto.setTitle("test title");
         requestDto.setContent("some content text");
         requestDto.setAuthorId(1L);
 
-        NewsModel responseDto = underTest.create(requestDto);
+        NewsServiceResponseDto responseDto = underTest.create(requestDto);
         assertEquals(requestDto.getTitle(), responseDto.getTitle());
         assertEquals(requestDto.getContent(), responseDto.getContent());
         assertEquals(requestDto.getAuthorId(), responseDto.getAuthorId());
@@ -75,13 +80,13 @@ class NewsServiceTest {
     void update() {
         long updateId = 1L;
 
-        NewsDto requestDto = new NewsDto();
+        NewsServiceRequestDto requestDto = new NewsServiceRequestDto();
         requestDto.setTitle("test title");
         requestDto.setContent("some content text");
         requestDto.setAuthorId(1L);
         requestDto.setId(updateId);
 
-        NewsModel responseDto = underTest.update(requestDto);
+        NewsServiceResponseDto responseDto = underTest.update(requestDto);
 
         assertEquals(requestDto.getTitle(), responseDto.getTitle());
         assertEquals(requestDto.getContent(), responseDto.getContent());
@@ -93,11 +98,11 @@ class NewsServiceTest {
     void remove() {
         long entityId = 1L;
 
-        NewsModel beforeTest = underTest.readById(entityId);
+        NewsServiceResponseDto beforeTest = underTest.readById(entityId);
 
         underTest.deleteById(entityId);
 
-        assertThrows(NewsNotFoundException.class,
+        assertThrows(UnifiedServiceException.class,
                 () -> {
                     underTest.readById(entityId);
                 });

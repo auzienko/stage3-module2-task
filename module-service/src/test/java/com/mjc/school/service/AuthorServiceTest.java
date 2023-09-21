@@ -4,13 +4,16 @@ import com.mjc.school.repository.AuthorRepository;
 import com.mjc.school.repository.NewsRepository;
 import com.mjc.school.repository.constant.PropertiesName;
 import com.mjc.school.repository.datasource.DataSource;
-import com.mjc.school.repository.exception.AuthorNotFoundException;
 import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.NewsModel;
 import com.mjc.school.repository.utils.PropertiesReader;
-import com.mjc.school.service.dto.AuthorDto;
+import com.mjc.school.service.dto.AuthorServiceRequestDto;
+import com.mjc.school.service.dto.AuthorServiceResponseDto;
+import com.mjc.school.service.exception.UnifiedServiceException;
+import com.mjc.school.service.mapper.AuthorServiceRepositoryMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mapstruct.factory.Mappers;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class AuthorServiceTest {
 
     private AuthorService underTest;
+
+    private final AuthorServiceRepositoryMapper mapper = Mappers.getMapper(AuthorServiceRepositoryMapper.class);
 
     @BeforeEach
     void init() throws IOException {
@@ -35,21 +40,22 @@ class AuthorServiceTest {
         AuthorRepository authorRepository = new AuthorRepository(authorModelDataSource);
         NewsRepository newsRepository = new NewsRepository(newsModelDataSource);
 
-        underTest = new AuthorService(authorRepository, newsRepository);
+
+        underTest = new AuthorService(authorRepository, mapper, newsRepository);
     }
 
     @Test
     void findAll() {
         int expectedSize = 21;
 
-        List<AuthorModel> all = underTest.readAll();
+        List<AuthorServiceResponseDto> all = underTest.readAll();
 
         assertEquals(expectedSize, all.size());
     }
 
     @Test
     void findById() {
-        AuthorModel byId = underTest.readById(1L);
+        AuthorServiceResponseDto byId = underTest.readById(1L);
 
         assertEquals(1L, byId.getId());
     }
@@ -58,10 +64,10 @@ class AuthorServiceTest {
     void create() {
         long expectedId = 22L;
 
-        AuthorDto requestDto = new AuthorDto();
+        AuthorServiceRequestDto requestDto = new AuthorServiceRequestDto();
         requestDto.setName("my name");
 
-        AuthorModel responseDto = underTest.create(requestDto);
+        AuthorServiceResponseDto responseDto = underTest.create(requestDto);
         assertEquals(requestDto.getName(), responseDto.getName());
         assertEquals(expectedId, responseDto.getId());
     }
@@ -70,11 +76,11 @@ class AuthorServiceTest {
     void update() {
         long updateId = 1L;
 
-        AuthorDto requestDto = new AuthorDto();
+        AuthorServiceRequestDto requestDto = new AuthorServiceRequestDto();
         requestDto.setName("hello name");
         requestDto.setId(updateId);
 
-        AuthorModel responseDto = underTest.update(requestDto);
+        AuthorServiceResponseDto responseDto = underTest.update(requestDto);
 
         assertEquals(requestDto.getName(), responseDto.getName());
         assertEquals(1L, responseDto.getId());
@@ -84,11 +90,11 @@ class AuthorServiceTest {
     void remove() {
         long entityId = 1L;
 
-        AuthorModel beforeTest = underTest.readById(entityId);
+        AuthorServiceResponseDto beforeTest = underTest.readById(entityId);
 
         underTest.deleteById(entityId);
 
-        assertThrows(AuthorNotFoundException.class,
+        assertThrows(UnifiedServiceException.class,
                 () -> {
                     underTest.readById(entityId);
                 });

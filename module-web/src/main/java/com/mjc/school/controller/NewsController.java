@@ -1,49 +1,80 @@
 package com.mjc.school.controller;
 
 import com.mjc.school.controller.annotation.CommandHandler;
-import com.mjc.school.repository.model.NewsModel;
+import com.mjc.school.controller.dto.NewsControllerRequestDto;
+import com.mjc.school.controller.dto.NewsControllerResponseDto;
+import com.mjc.school.controller.exception.UnifiedControllerException;
+import com.mjc.school.controller.mapper.NewsControllerServiceMapper;
 import com.mjc.school.service.NewsService;
-import com.mjc.school.service.dto.NewsDto;
+import com.mjc.school.service.dto.NewsServiceRequestDto;
+import com.mjc.school.service.dto.NewsServiceResponseDto;
+import com.mjc.school.service.exception.UnifiedServiceException;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
 
 @Controller
-public class NewsController implements BaseController<NewsDto, NewsModel, Long> {
+public class NewsController implements BaseController<NewsControllerRequestDto, NewsControllerResponseDto, Long> {
     private final NewsService service;
+    private final NewsControllerServiceMapper mapper;
 
-    public NewsController(NewsService service) {
+    public NewsController(NewsService service, NewsControllerServiceMapper mapper) {
         this.service = service;
+        this.mapper = mapper;
     }
 
     @CommandHandler(value = "NEWS_GET_ALL")
     @Override
-    public List<NewsModel> readAll() {
-        return service.readAll();
+    public List<NewsControllerResponseDto> readAll() {
+        try {
+            return mapper.fromService(service.readAll());
+        } catch (UnifiedServiceException e) {
+            throw new UnifiedControllerException(e);
+        }
     }
 
     @CommandHandler(value = "NEWS_CREATE")
     @Override
-    public NewsModel create(NewsDto createRequest) {
-        return service.create(createRequest);
+    public NewsControllerResponseDto create(NewsControllerRequestDto createRequest) {
+        try {
+            NewsServiceRequestDto newsServiceRequestDto = mapper.toService(createRequest);
+            NewsServiceResponseDto newsServiceResponseDto = service.create(newsServiceRequestDto);
+            return mapper.fromService(newsServiceResponseDto);
+        } catch (UnifiedServiceException e) {
+            throw new UnifiedControllerException(e);
+        }
     }
 
     @CommandHandler(value = "NEWS_GET_BY_ID")
     @Override
-    public NewsModel readById(Long id) {
-        return service.readById(id);
+    public NewsControllerResponseDto readById(Long id) {
+        try {
+            return mapper.fromService(service.readById(id));
+        } catch (UnifiedServiceException e) {
+            throw new UnifiedControllerException(e);
+        }
     }
 
     @CommandHandler(value = "NEWS_UPDATE")
     @Override
-    public NewsModel update(NewsDto updateRequest) {
-        return service.update(updateRequest);
+    public NewsControllerResponseDto update(NewsControllerRequestDto updateRequest) {
+        try {
+            NewsServiceRequestDto newsServiceRequestDto = mapper.toService(updateRequest);
+            NewsServiceResponseDto newsServiceResponseDto = service.update(newsServiceRequestDto);
+            return mapper.fromService(newsServiceResponseDto);
+        } catch (UnifiedServiceException e) {
+            throw new UnifiedControllerException(e);
+        }
     }
 
     @CommandHandler(value = "NEWS_REMOVE_BY_ID")
     @Override
     public boolean deleteById(Long id) {
-        return service.deleteById(id);
+        try {
+            return service.deleteById(id);
+        } catch (UnifiedServiceException e) {
+            throw new UnifiedControllerException(e);
+        }
     }
 }
 

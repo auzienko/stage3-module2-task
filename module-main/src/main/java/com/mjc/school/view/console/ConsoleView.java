@@ -3,7 +3,7 @@ package com.mjc.school.view.console;
 import com.mjc.school.view.View;
 import com.mjc.school.view.console.command.Command;
 import com.mjc.school.view.console.command.CommandDict;
-import com.mjc.school.view.console.error.ErrorsDict;
+import com.mjc.school.view.console.errors.ErrorsDict;
 import com.mjc.school.view.console.utils.InputUtil;
 import org.springframework.stereotype.Component;
 

@@ -1,10 +1,10 @@
 package com.mjc.school.view.console.command.author;
 
-import com.mjc.school.repository.exception.AuthorNotFoundException;
+import com.mjc.school.controller.exception.UnifiedControllerException;
 import com.mjc.school.view.console.command.Command;
 import com.mjc.school.view.console.command.CommandDict;
 import com.mjc.school.view.console.command.CommandDispatcher;
-import com.mjc.school.view.console.error.ErrorsDict;
+import com.mjc.school.view.console.errors.ErrorsDict;
 import com.mjc.school.view.exceptin.ApplicationException;
 import org.springframework.stereotype.Component;
 
@@ -34,8 +34,8 @@ public class RemoveByIdCommand implements Command {
         try {
             userChoice = inputLong(STEP_1, reader, ErrorsDict.AUTHOR_ID_SHOULD_BE_NUMBER);
             commandDispatcher.execute(hoAmI().name(), userChoice);
-        } catch (AuthorNotFoundException e) {
-            ErrorsDict.AUTHOR_ID_DOES_NOT_EXIST.printLn(userChoice);
+        } catch (UnifiedControllerException e) {
+            e.printInfo();
         } catch (Exception e) {
             throw new ApplicationException(e);
         }

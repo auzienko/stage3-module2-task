@@ -1,6 +1,6 @@
 package com.mjc.school.view.console.utils;
 
-import com.mjc.school.view.console.error.ErrorsDict;
+import com.mjc.school.view.console.errors.ErrorsDict;
 import lombok.experimental.UtilityClass;
 
 import java.util.Scanner;
