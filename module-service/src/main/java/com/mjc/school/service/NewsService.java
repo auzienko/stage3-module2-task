@@ -8,31 +8,26 @@ import com.mjc.school.service.dto.NewsServiceResponseDto;
 import com.mjc.school.service.error.ServiceErrorsDict;
 import com.mjc.school.service.exception.UnifiedServiceException;
 import com.mjc.school.service.mapper.NewsServiceRepositoryMapper;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
+import com.mjc.school.service.validation.ValidatorService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class NewsService implements BaseService<NewsServiceRequestDto, NewsServiceResponseDto, Long> {
     private final AuthorRepository authorRepository;
     private final NewsRepository newsRepository;
     private final NewsServiceRepositoryMapper mapper;
+    private final ValidatorService<NewsServiceRequestDto> validator;
 
-    private final Validator validator;
-
-    public NewsService(AuthorRepository authorRepository, NewsRepository newsRepository, NewsServiceRepositoryMapper mapper) {
+    public NewsService(AuthorRepository authorRepository,
+                       NewsRepository newsRepository,
+                       NewsServiceRepositoryMapper mapper,
+                       ValidatorService<NewsServiceRequestDto> validator) {
         this.authorRepository = authorRepository;
         this.newsRepository = newsRepository;
         this.mapper = mapper;
-        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
-        validatorFactory.close();
+        this.validator = validator;
     }
 
     @Override
@@ -52,7 +47,7 @@ public class NewsService implements BaseService<NewsServiceRequestDto, NewsServi
     @Override
     public NewsServiceResponseDto create(NewsServiceRequestDto createRequest) {
 
-        validate(createRequest);
+        validator.validate(createRequest, ServiceErrorsDict.NEWS_DTO_VALIDATION);
         checkAuthorExist(createRequest);
         dtoIdMustBeNull(createRequest);
 
@@ -65,7 +60,7 @@ public class NewsService implements BaseService<NewsServiceRequestDto, NewsServi
     @Override
     public NewsServiceResponseDto update(NewsServiceRequestDto updateRequest) {
 
-        validate(updateRequest);
+        validator.validate(updateRequest, ServiceErrorsDict.NEWS_DTO_VALIDATION);
         checkAuthorExist(updateRequest);
 
         NewsModel newsModel = mapper.toRepository(updateRequest);
@@ -81,19 +76,6 @@ public class NewsService implements BaseService<NewsServiceRequestDto, NewsServi
         }
 
         return newsRepository.deleteById(id);
-    }
-
-    private void validate(NewsServiceRequestDto dto) {
-        Set<ConstraintViolation<NewsServiceRequestDto>> violations = validator.validate(dto);
-        Optional<ConstraintViolation<NewsServiceRequestDto>> any = violations.stream().findAny();
-        if (any.isPresent()) {
-            String errorMessage = ServiceErrorsDict.NEWS_DTO_VALIDATION.getErrorMessage().formatted(
-                    any.get().getPropertyPath().toString(),
-                    any.get().getMessage(),
-                    any.get().getInvalidValue().toString());
-
-            throw new UnifiedServiceException(ServiceErrorsDict.NEWS_DTO_VALIDATION.getErrorCode(), errorMessage);
-        }
     }
 
     private void checkAuthorExist(NewsServiceRequestDto object) {

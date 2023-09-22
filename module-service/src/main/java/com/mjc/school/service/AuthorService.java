@@ -9,33 +9,27 @@ import com.mjc.school.service.dto.AuthorServiceResponseDto;
 import com.mjc.school.service.error.ServiceErrorsDict;
 import com.mjc.school.service.exception.UnifiedServiceException;
 import com.mjc.school.service.mapper.AuthorServiceRepositoryMapper;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
+import com.mjc.school.service.validation.ValidatorService;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class AuthorService implements BaseService<AuthorServiceRequestDto, AuthorServiceResponseDto, Long> {
     private final AuthorRepository authorRepository;
-
     private final AuthorServiceRepositoryMapper mapper;
     private final NewsRepository newsRepository;
+    private final ValidatorService<AuthorServiceRequestDto> validator;
 
-    private final Validator validator;
-
-    public AuthorService(AuthorRepository authorRepository, AuthorServiceRepositoryMapper mapper, NewsRepository newsRepository) {
+    public AuthorService(AuthorRepository authorRepository,
+                         AuthorServiceRepositoryMapper mapper,
+                         NewsRepository newsRepository,
+                         ValidatorService<AuthorServiceRequestDto> validator) {
         this.authorRepository = authorRepository;
         this.mapper = mapper;
         this.newsRepository = newsRepository;
-        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
-        validatorFactory.close();
+        this.validator = validator;
     }
 
     @Override
@@ -55,7 +49,7 @@ public class AuthorService implements BaseService<AuthorServiceRequestDto, Autho
     @Override
     public AuthorServiceResponseDto create(AuthorServiceRequestDto createRequest) {
 
-        validate(createRequest);
+        validator.validate(createRequest, ServiceErrorsDict.AUTHOR_DTO_VALIDATION);
         dtoIdMustBeNull(createRequest);
 
         AuthorModel authorModel = mapper.toRepository(createRequest);
@@ -68,7 +62,7 @@ public class AuthorService implements BaseService<AuthorServiceRequestDto, Autho
     @Override
     public AuthorServiceResponseDto update(AuthorServiceRequestDto updateRequest) {
 
-        validate(updateRequest);
+        validator.validate(updateRequest, ServiceErrorsDict.AUTHOR_DTO_VALIDATION);
 
         AuthorModel authorModel = mapper.toRepository(updateRequest);
         AuthorModel updatedAuthorModel = authorRepository.update(authorModel);
@@ -101,19 +95,6 @@ public class AuthorService implements BaseService<AuthorServiceRequestDto, Autho
         });
 
         newsForDelete.forEach(newsRepository::deleteById);
-    }
-
-    private void validate(AuthorServiceRequestDto dto) {
-        Set<ConstraintViolation<AuthorServiceRequestDto>> violations = validator.validate(dto);
-        Optional<ConstraintViolation<AuthorServiceRequestDto>> any = violations.stream().findAny();
-        if (any.isPresent()) {
-            String errorMessage = ServiceErrorsDict.AUTHOR_DTO_VALIDATION.getErrorMessage().formatted(
-                    any.get().getPropertyPath().toString(),
-                    any.get().getMessage(),
-                    any.get().getInvalidValue().toString());
-
-            throw new UnifiedServiceException(ServiceErrorsDict.AUTHOR_DTO_VALIDATION.getErrorCode(), errorMessage);
-        }
     }
 
     private void dtoIdMustBeNull(AuthorServiceRequestDto object) {

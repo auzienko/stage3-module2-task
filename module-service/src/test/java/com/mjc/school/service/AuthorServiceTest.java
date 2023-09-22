@@ -11,6 +11,7 @@ import com.mjc.school.service.dto.AuthorServiceRequestDto;
 import com.mjc.school.service.dto.AuthorServiceResponseDto;
 import com.mjc.school.service.exception.UnifiedServiceException;
 import com.mjc.school.service.mapper.AuthorServiceRepositoryMapper;
+import com.mjc.school.service.validation.ValidatorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -40,8 +41,9 @@ class AuthorServiceTest {
         AuthorRepository authorRepository = new AuthorRepository(authorModelDataSource);
         NewsRepository newsRepository = new NewsRepository(newsModelDataSource);
 
+        ValidatorService<AuthorServiceRequestDto> validator = new ValidatorService<>();
 
-        underTest = new AuthorService(authorRepository, mapper, newsRepository);
+        underTest = new AuthorService(authorRepository, mapper, newsRepository, validator);
     }
 
     @Test

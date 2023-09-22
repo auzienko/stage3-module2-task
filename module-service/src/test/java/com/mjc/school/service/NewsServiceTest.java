@@ -11,6 +11,7 @@ import com.mjc.school.service.dto.NewsServiceRequestDto;
 import com.mjc.school.service.dto.NewsServiceResponseDto;
 import com.mjc.school.service.exception.UnifiedServiceException;
 import com.mjc.school.service.mapper.NewsServiceRepositoryMapper;
+import com.mjc.school.service.validation.ValidatorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
@@ -38,8 +39,8 @@ class NewsServiceTest {
 
         AuthorRepository authorRepository = new AuthorRepository(authorModelDataSource);
         NewsRepository newsRepository = new NewsRepository(newsModelDataSource);
-
-        underTest = new NewsService(authorRepository, newsRepository, mapper);
+        ValidatorService<NewsServiceRequestDto> validator = new ValidatorService<>();
+        underTest = new NewsService(authorRepository, newsRepository, mapper, validator);
     }
 
     @Test
