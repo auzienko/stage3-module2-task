@@ -1,9 +1,10 @@
-package com.mjc.school.service;
+package com.mjc.school.service.impl;
 
-import com.mjc.school.repository.AuthorRepository;
-import com.mjc.school.repository.NewsRepository;
+import com.mjc.school.repository.impl.AuthorRepository;
+import com.mjc.school.repository.impl.NewsRepository;
 import com.mjc.school.repository.model.AuthorModel;
 import com.mjc.school.repository.model.NewsModel;
+import com.mjc.school.service.BaseService;
 import com.mjc.school.service.dto.AuthorServiceRequestDto;
 import com.mjc.school.service.dto.AuthorServiceResponseDto;
 import com.mjc.school.service.error.ServiceErrorsDict;

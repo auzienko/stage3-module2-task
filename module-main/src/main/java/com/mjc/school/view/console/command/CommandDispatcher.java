@@ -1,7 +1,7 @@
 package com.mjc.school.view.console.command;
 
-import com.mjc.school.controller.AuthorController;
-import com.mjc.school.controller.NewsController;
+import com.mjc.school.controller.impl.AuthorController;
+import com.mjc.school.controller.impl.NewsController;
 import com.mjc.school.controller.annotation.CommandHandler;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;

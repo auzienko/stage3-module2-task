@@ -1,5 +1,6 @@
-package com.mjc.school.repository;
+package com.mjc.school.repository.impl;
 
+import com.mjc.school.repository.BaseRepository;
 import com.mjc.school.repository.datasource.DataSource;
 import com.mjc.school.repository.exception.NewsCreationException;
 import com.mjc.school.repository.exception.NewsUpdateException;

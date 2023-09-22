@@ -1,11 +1,12 @@
-package com.mjc.school.controller;
+package com.mjc.school.controller.impl;
 
+import com.mjc.school.controller.BaseController;
 import com.mjc.school.controller.annotation.CommandHandler;
 import com.mjc.school.controller.dto.AuthorControllerRequestDto;
 import com.mjc.school.controller.dto.AuthorControllerResponseDto;
 import com.mjc.school.controller.exception.UnifiedControllerException;
 import com.mjc.school.controller.mapper.AuthorControllerServiceMapper;
-import com.mjc.school.service.AuthorService;
+import com.mjc.school.service.impl.AuthorService;
 import com.mjc.school.service.dto.AuthorServiceRequestDto;
 import com.mjc.school.service.dto.AuthorServiceResponseDto;
 import com.mjc.school.service.exception.UnifiedServiceException;

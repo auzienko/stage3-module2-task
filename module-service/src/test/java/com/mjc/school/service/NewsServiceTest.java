@@ -1,7 +1,7 @@
 package com.mjc.school.service;
 
-import com.mjc.school.repository.AuthorRepository;
-import com.mjc.school.repository.NewsRepository;
+import com.mjc.school.repository.impl.AuthorRepository;
+import com.mjc.school.repository.impl.NewsRepository;
 import com.mjc.school.repository.constant.PropertiesName;
 import com.mjc.school.repository.datasource.DataSource;
 import com.mjc.school.repository.model.AuthorModel;
@@ -10,6 +10,7 @@ import com.mjc.school.repository.utils.PropertiesReader;
 import com.mjc.school.service.dto.NewsServiceRequestDto;
 import com.mjc.school.service.dto.NewsServiceResponseDto;
 import com.mjc.school.service.exception.UnifiedServiceException;
+import com.mjc.school.service.impl.NewsService;
 import com.mjc.school.service.mapper.NewsServiceRepositoryMapper;
 import com.mjc.school.service.validation.ValidatorService;
 import org.junit.jupiter.api.BeforeEach;
